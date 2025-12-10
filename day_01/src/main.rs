@@ -34,27 +34,41 @@ impl Sub for BoundedU100 {
 impl BoundedU100 {
     fn perform(self, rotation: Rotation) -> Self {
         match rotation {
-            Rotation::Left(bounded_u100) => self - bounded_u100,
-            Rotation::Right(bounded_u100) => self + bounded_u100,
+            Rotation::Left(n) => self - BoundedU100::new(n),
+            Rotation::Right(n) => self + BoundedU100::new(n),
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Rotation {
-    Left(BoundedU100),
-    Right(BoundedU100),
+    Left(u32),
+    Right(u32),
 }
 
 impl Rotation {
     fn new(value: &str) -> Option<Self> {
         let (dir, val) = value.split_at(1);
         let val = val.parse::<u32>().ok()?;
-        let val = BoundedU100::new(val);
         match dir {
             "L" => Some(Self::Left(val)),
             "R" => Some(Self::Right(val)),
             _ => None,
+        }
+    }
+
+    fn count_zeros(&self, start: u8) -> u32 {
+        match *self {
+            Rotation::Right(n) => (start as u32 + n) / 100,
+            Rotation::Left(n) => {
+                if start == 0 {
+                    n / 100
+                } else if n >= start as u32 {
+                    (n - start as u32) / 100 + 1
+                } else {
+                    0
+                }
+            }
         }
     }
 }
@@ -69,11 +83,22 @@ fn crack_the_code(input: &str) -> u32 {
     let mut current_position = starting_position;
     let mut zero_counter = 0u32;
     for rotation in rotations {
-        // println!("current_position: {current_position:?}, rotation: {rotation:?}");
         current_position = current_position.perform(rotation);
         if current_position.0 == 0 {
             zero_counter += 1
         };
+    }
+    zero_counter
+}
+
+fn crack_the_code_v2(input: &str) -> u32 {
+    let starting_position = BoundedU100(50);
+    let rotations = parse_rotations(input);
+    let mut current_position = starting_position;
+    let mut zero_counter = 0u32;
+    for rotation in rotations {
+        zero_counter += rotation.count_zeros(current_position.0);
+        current_position = current_position.perform(rotation);
     }
     zero_counter
 }
@@ -90,16 +115,16 @@ fn read_document() -> String {
 fn main() {
     let input = read_document();
     let pwd = crack_the_code(&input);
-    println!("password: {pwd}"); // 1081
+    println!("part 1: {pwd}"); // 1081
+    let pwd2 = crack_the_code_v2(&input);
+    println!("part 2: {pwd2}");
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::crack_the_code;
+    use crate::{crack_the_code, crack_the_code_v2};
 
-    #[test]
-    fn test_example() {
-        let input = r"L68
+    const EXAMPLE: &str = r"L68
 L30
 R48
 L5
@@ -109,8 +134,14 @@ L1
 L99
 R14
 L82";
-        let pwd = crack_the_code(input);
-        println!("password: {pwd}");
-        assert_eq!(pwd, 3);
+
+    #[test]
+    fn test_part1() {
+        assert_eq!(crack_the_code(EXAMPLE), 3);
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(crack_the_code_v2(EXAMPLE), 6);
     }
 }
