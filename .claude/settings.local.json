@@ -8,7 +8,8 @@
       "Bash(cat:*)",
       "Bash(rustc:*)",
       "Bash(cargo test:*)",
-      "Bash(just run:*)"
+      "Bash(just run:*)",
+      "Bash(cargo run:*)"
     ]
   }
 }
