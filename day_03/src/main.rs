@@ -23,15 +23,41 @@ fn crack_the_code(input: &str) -> u32 {
     banks.map(find_max_joltage).map(|n| n as u32).sum()
 }
 
+fn find_max_joltage_v2(bank: &str, k: usize) -> u64 {
+    let chars: Vec<char> = bank.chars().collect();
+    let n = chars.len();
+    let mut result = String::with_capacity(k);
+    let mut start = 0;
+
+    for remaining in (1..=k).rev() {
+        // Pick from start..=(n - remaining)
+        let end = n - remaining;
+        let slice = &chars[start..=end];
+        let max_char = *slice.iter().max().unwrap();
+        // Find FIRST occurrence of max (leftmost gives most options for remaining picks)
+        let max_idx = slice.iter().position(|&c| c == max_char).unwrap();
+        result.push(chars[start + max_idx]);
+        start = start + max_idx + 1;
+    }
+
+    result.parse().unwrap()
+}
+
+fn crack_the_code_v2(input: &str) -> u64 {
+    input.lines().map(|bank| find_max_joltage_v2(bank, 12)).sum()
+}
+
 fn main() {
     let input = utils::read_puzzle_input(3);
-    let answer = crack_the_code(&input);
-    println!("answer: {answer}");
+    let pt1 = crack_the_code(&input);
+    println!("part 1: {pt1}");
+    let pt2 = crack_the_code_v2(&input);
+    println!("part 2: {pt2}");
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::crack_the_code;
+    use crate::{crack_the_code, crack_the_code_v2};
 
     const EXAMPLE: &str = r"987654321111111
 811111111111119
@@ -41,5 +67,10 @@ mod tests {
     #[test]
     fn test_part_1() {
         assert_eq!(crack_the_code(EXAMPLE), 357);
+    }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(crack_the_code_v2(EXAMPLE), 3121910778619);
     }
 }
