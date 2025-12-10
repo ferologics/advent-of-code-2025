@@ -6,7 +6,9 @@
       "Bash(just new:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(rustc:*)"
+      "Bash(rustc:*)",
+      "Bash(cargo test:*)",
+      "Bash(just run:*)"
     ]
   }
 }
