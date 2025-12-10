@@ -1,7 +1,4 @@
-use std::{
-    env,
-    ops::{Add, Sub},
-};
+use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BoundedU100(u8);
@@ -103,17 +100,8 @@ fn crack_the_code_v2(input: &str) -> u32 {
     zero_counter
 }
 
-fn read_document() -> String {
-    let mut file_path = env::current_dir().ok().unwrap();
-    file_path.push("day_01");
-    file_path.push("src");
-    file_path.push("document.txt");
-    let result = std::fs::read_to_string(file_path);
-    result.ok().unwrap()
-}
-
 fn main() {
-    let input = read_document();
+    let input = utils::read_puzzle_input(1);
     let pwd = crack_the_code(&input);
     println!("part 1: {pwd}"); // 1081
     let pwd2 = crack_the_code_v2(&input);
